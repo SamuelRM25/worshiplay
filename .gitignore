@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+settings.json
+fondos/*.mp4
+fondos/*.webm
+fondos/*.jpg
+fondos/*.jpeg
+fondos/*.png
+fondos/*.webp

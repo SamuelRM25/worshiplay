@@ -1,0 +1,363 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  background:#000;
+  font-family:'Inter', -apple-system, sans-serif;
+}
+
+#projection-screen {
+  position:relative;
+  width:100vw; height:100vh;
+  overflow:hidden;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='rgba(255,255,255,0.8)' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='2' fill='rgba(255,255,255,0.9)'/%3E%3C/svg%3E") 16 16, crosshair;
+}
+
+#bg-layer {
+  position:absolute; inset:0;
+  z-index:0;
+}
+#bg-layer video, #bg-layer img {
+  width:100%; height:100%;
+  object-fit:cover;
+  transition:opacity 0.5s ease;
+}
+#bg-gradient {
+  position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(10,10,18,0.6) 0%, transparent 50%, rgba(10,10,18,0.4) 100%);
+}
+#bg-dim {
+  position:absolute; inset:0;
+  pointer-events:none;
+  opacity:0;
+  transition: opacity 0.5s ease;
+}
+#bg-dim.active {
+  opacity:1;
+}
+#content-layer {
+  position:absolute; inset:0;
+  z-index:1;
+  display:flex; align-items:center; justify-content:center;
+}
+
+#song-display {
+  width:100%; height:100%;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+#song-title {
+  font-size:2.5rem; font-weight:800;
+  color:var(--accent, #ffd700);
+  text-align:center;
+  margin-bottom:30px;
+  text-shadow:0 2px 30px rgba(0,0,0,0.8), 0 0 60px rgba(184,134,11,0.3);
+  letter-spacing:2px;
+}
+#song-lyrics {
+  text-align:center;
+  max-width:90%;
+}
+
+#bible-display {
+  width:100%; height:100%;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:80px 60px;
+}
+#bible-text {
+  max-width:85%;
+  text-align:center;
+  line-height:1.8;
+}
+#bible-text .verse-line {
+  margin:5px 0;
+}
+#bible-text .verse-num {
+  font-size:0.7em; color:#b8860b; font-weight:700;
+  vertical-align:super; margin-right:4px;
+}
+#bible-text .verse-text {
+  color:#f0e6d3;
+  text-shadow:0 2px 20px rgba(0,0,0,0.8);
+}
+.bible-word { cursor:pointer; }
+.bible-word:hover { text-shadow:0 0 15px rgba(255,215,0,0.5); }
+#bible-ref {
+  margin-top:30px;
+  color:#b8860b;
+  font-size:1.2rem; font-weight:600;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  opacity:0.7;
+}
+#ref-bar {
+  position:absolute; bottom:0; left:0; right:0; z-index:10;
+  text-align:center; padding:18px 40px;
+  background:linear-gradient(transparent, rgba(0,0,0,0.85));
+  pointer-events:none;
+}
+#ref-bar-text {
+  font-size:1.3rem; font-weight:600; letter-spacing:2px;
+  color:#b8860b; text-transform:uppercase;
+  text-shadow:0 2px 10px rgba(0,0,0,0.8);
+}
+
+#video-display {
+  width:100%; height:100%;
+  position:relative;
+}
+#projected-video {
+  width:100%; height:100%;
+  object-fit:contain;
+}
+#video-lyrics-overlay {
+  position:absolute; bottom:10%; left:5%; right:5%;
+  text-align:center; z-index:10;
+  pointer-events:none;
+}
+#video-lyrics-overlay .lyric-line {
+  font-size:2.8rem; font-weight:700;
+  color:#fff;
+  text-shadow:0 2px 20px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.5);
+  margin:8px 0;
+}
+#video-lyrics-overlay .lyric-section {
+  font-size:1.3rem; color:#b8860b;
+  text-transform:uppercase; letter-spacing:4px;
+  margin:10px 0; opacity:0.6;
+}
+
+#blank-display {
+  width:100%; height:100%;
+  background:#000;
+}
+#logo-display {
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+}
+#logo-content {
+  text-align:center;
+}
+#logo-big {
+  font-size:8rem; color:#b8860b;
+  text-shadow:0 0 40px rgba(184,134,11,0.5), 0 0 80px rgba(184,134,11,0.2);
+  animation:logoFloat 3s ease-in-out infinite;
+}
+#logo-content h1 {
+  font-size:4rem; font-weight:900;
+  color:#b8860b; margin-top:10px;
+  letter-spacing:4px;
+}
+#logo-content h1 span { color:#fff; }
+#logo-content p {
+  color:#a89880; font-size:1.1rem;
+  margin-top:15px; letter-spacing:2px;
+}
+
+@keyframes logoFloat {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(-15px); }
+}
+
+#transition-overlay {
+  position:absolute; inset:0;
+  z-index:5; pointer-events:none;
+}
+
+.lyrics-container { width:90%; margin:0 auto; text-align:center; }
+.lyric-section { font-size:1.3rem; color:#b8860b; text-transform:uppercase; letter-spacing:4px; margin:10px 0; opacity:0.6; }
+.lyric-line { font-weight:700; line-height:1.6; margin:8px 0; text-shadow:0 2px 20px rgba(0,0,0,0.8); }
+.lyric-block-spacer { height:2rem; }
+
+.lyric-glow { color:#fff; text-shadow:0 0 10px rgba(255,215,0,0.5), 0 0 20px rgba(255,215,0,0.3), 0 0 40px rgba(255,215,0,0.1), 0 2px 20px rgba(0,0,0,0.8); animation:glowIn 0.8s ease-out; }
+@keyframes glowIn { 0%{opacity:0;transform:translateY(10px);text-shadow:0 0 0 transparent} 100%{opacity:1;transform:translateY(0)} }
+
+.lyric-simple { color:#fff; transition:opacity 0.5s; }
+.lyric-karaoke { color:#ddd; background:linear-gradient(90deg,#ffd700 50%,#ddd 50%); background-size:200% 100%; background-position:100%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; transition:background-position 0.3s; }
+.lyric-reveal { color:#fff; clip-path:inset(0 100% 0 0); animation:reveal 1s ease-out forwards; }
+@keyframes reveal { to{clip-path:inset(0 0 0 0)} }
+.lyric-bounce { color:#fff; animation:bounceIn 0.6s cubic-bezier(0.68,-0.55,0.265,1.55); }
+@keyframes bounceIn { 0%{opacity:0;transform:scale(0.3)} 50%{transform:scale(1.05)} 70%{transform:scale(0.9)} 100%{opacity:1;transform:scale(1)} }
+
+.lyric-current {
+  position:relative;
+}
+.lyric-current::after {
+  content:'';
+  position:absolute; left:-20px; top:50%; transform:translateY(-50%);
+  width:8px; height:8px; border-radius:50%;
+  background:var(--accent, #ffd700);
+  box-shadow:0 0 15px rgba(255,215,0,0.6);
+  animation:currentPulse 1.5s ease-in-out infinite;
+}
+@keyframes currentPulse {
+  0%,100% { opacity:1; transform:translateY(-50%) scale(1); }
+  50% { opacity:0.5; transform:translateY(-50%) scale(0.8); }
+}
+
+.transition-crossfade { animation:tfFade 0.8s ease-in-out; }
+@keyframes tfFade { 0%{opacity:0} 100%{opacity:1} }
+.transition-slide-left { animation:tfSlideL 0.8s ease-out; }
+@keyframes tfSlideL { 0%{transform:translateX(100%);opacity:0} 100%{transform:translateX(0);opacity:1} }
+.transition-slide-right { animation:tfSlideR 0.8s ease-out; }
+@keyframes tfSlideR { 0%{transform:translateX(-100%);opacity:0} 100%{transform:translateX(0);opacity:1} }
+.transition-slide-up { animation:tfSlideU 0.8s ease-out; }
+@keyframes tfSlideU { 0%{transform:translateY(100%);opacity:0} 100%{transform:translateY(0);opacity:1} }
+.transition-zoom-in { animation:tfZoomIn 0.8s ease-out; }
+@keyframes tfZoomIn { 0%{transform:scale(0.5);opacity:0} 100%{transform:scale(1);opacity:1} }
+.transition-zoom-out { animation:tfZoomOut 0.8s ease-out; }
+@keyframes tfZoomOut { 0%{transform:scale(1.5);opacity:0} 100%{transform:scale(1);opacity:1} }
+.transition-morph { animation:tfMorph 0.8s ease-in-out; }
+@keyframes tfMorph { 0%{filter:blur(20px);opacity:0;transform:scale(0.8)} 100%{filter:blur(0);opacity:1;transform:scale(1)} }
+.transition-curtain { animation:tfCurtain 0.8s ease-in-out; }
+@keyframes tfCurtain { 0%{clip-path:inset(0 100% 0 0)} 100%{clip-path:inset(0 0 0 0)} }
+.transition-glitch { animation:tfGlitch 0.8s steps(4); }
+@keyframes tfGlitch { 0%{clip-path:inset(50% 0 50% 0);transform:translate(-5px,5px)} 25%{clip-path:inset(20% 0 80% 0);transform:translate(5px,-5px)} 50%{clip-path:inset(80% 0 20% 0);transform:translate(-3px,3px)} 75%{clip-path:inset(10% 0 90% 0);transform:translate(3px,-3px)} 100%{clip-path:inset(0 0 0 0);transform:translate(0)} }
+
+.lyric-typewriter { color:#fff; overflow:hidden; white-space:nowrap; animation:twType 1.5s steps(40) forwards; width:0; }
+@keyframes twType { from{width:0} to{width:100%} }
+.lyric-rainbow { background:linear-gradient(90deg,#ff0000,#ff7700,#ffdd00,#00ff00,#0077ff,#8b00ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:rainbowShift 3s linear infinite; background-size:200% 100%; }
+@keyframes rainbowShift { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+.lyric-neon { color:#fff; text-shadow:0 0 7px #0ff,0 0 10px #0ff,0 0 21px #0ff,0 0 42px #0ff,0 0 82px #0ff; animation:neonPulse 1.5s ease-in-out infinite alternate; }
+@keyframes neonPulse { from{text-shadow:0 0 7px #0ff,0 0 10px #0ff,0 0 21px #0ff,0 0 42px #0ff} to{text-shadow:0 0 7px #f0f,0 0 10px #f0f,0 0 21px #f0f,0 0 42px #f0f,0 0 82px #f0f} }
+
+#word-overlay {
+  position:fixed; inset:0; z-index:100;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.85);
+  cursor:pointer;
+  animation:wordOverlayIn 0.3s ease-out;
+}
+@keyframes wordOverlayIn { from{opacity:0} to{opacity:1} }
+#word-overlay-text {
+  font-size:5rem; font-weight:800; color:#ffd700;
+  text-shadow:0 0 40px rgba(255,215,0,0.8), 0 0 80px rgba(255,215,0,0.4);
+  text-align:center; padding:40px;
+  animation:wordPopIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes wordPopIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+
+#startup-countdown {
+  position:fixed; inset:0; z-index:200;
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(ellipse at center, #111122 0%, #000 100%);
+  animation:scFadeIn 0.5s ease-out;
+}
+#startup-countdown.sc-fade-out {
+  animation:scFadeOut 0.4s ease-in forwards;
+}
+@keyframes scFadeIn { from{opacity:0} to{opacity:1} }
+@keyframes scFadeOut { from{opacity:1} to{opacity:0} }
+#sc-content {
+  text-align:center;
+}
+#sc-label {
+  font-family:'Inter',sans-serif;
+  font-size:0.85rem;
+  font-weight:600;
+  letter-spacing:6px;
+  color:rgba(255,255,255,0.35);
+  margin-bottom:20px;
+}
+#sc-number {
+  font-family:'Inter',sans-serif;
+  font-size:7rem;
+  font-weight:200;
+  color:#fff;
+  line-height:1;
+  text-shadow:0 0 60px rgba(255,255,255,0.15);
+  animation:scPulse 1s ease-in-out infinite;
+}
+@keyframes scPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.08);opacity:0.85} }
+#sc-bar {
+  width:200px; height:2px;
+  background:rgba(255,255,255,0.1);
+  border-radius:2px;
+  margin:30px auto 0;
+  overflow:hidden;
+}
+#sc-bar-fill {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#3b82f6,#a855f7);
+  border-radius:2px;
+  transition:width 0.1s linear;
+}
+
+.animate-fade-out {
+  animation: contentFadeOut 0.4s ease-out forwards;
+}
+@keyframes contentFadeOut {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.95); }
+}
+
+#pip-overlays {
+  position:fixed; inset:0; z-index:50;
+  pointer-events:none;
+}
+.pip-item {
+  pointer-events:auto;
+  transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  opacity:1;
+}
+.pip-item video {
+  object-fit:cover;
+  mix-blend-mode:screen;
+  -webkit-mix-blend-mode:screen;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+  isolation:isolate;
+}
+.pip-canvas {
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+#announcement-banner {
+  position:fixed; bottom:0; left:0; right:0; z-index:55;
+  background:rgba(0,0,0,0.92);
+  border-top:2px solid rgba(255,215,0,0.3);
+  height:70px;
+  pointer-events:none;
+  overflow:hidden;
+  display:flex; align-items:center;
+}
+#announcement-banner-text {
+  white-space:nowrap;
+  font-family:'Inter',sans-serif;
+  font-size:2rem;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:2px;
+  padding:0 40px;
+}
+#announcement-banner-text.scroll {
+  animation:announceScroll 8s linear forwards;
+}
+@keyframes announceScroll {
+  from { transform:translateX(100vw); }
+  to { transform:translateX(-100%); }
+}
+
+#note-display {
+  display:none;
+  position:absolute; inset:0; z-index:1;
+  align-items:center; justify-content:center;
+  padding:80px 60px;
+  pointer-events:none;
+}
+#note-display-content {
+  max-width:80%;
+  text-align:center;
+  font-size:3rem;
+  font-weight:600;
+  color:#f0e6d3;
+  text-shadow:0 2px 20px rgba(0,0,0,0.8);
+  line-height:1.6;
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorshiPlay - Proyección</title>
+<link rel="stylesheet" href="projection.css">
+</head>
+<body>
+<div id="projection-screen">
+  <div id="bg-layer">
+    <video id="bg-video" muted loop playsinline></video>
+    <img id="bg-image" style="display:none">
+    <div id="bg-gradient"></div>
+    <div id="bg-dim"></div>
+  </div>
+  <div id="content-layer" class="transition-crossfade">
+    <div id="song-display" style="display:none">
+      <div id="song-title"></div>
+      <div id="song-lyrics" class="lyrics-glow"></div>
+    </div>
+    <div id="bible-display" style="display:none">
+      <div id="bible-text"></div>
+    </div>
+    <div id="ref-bar" style="display:none">
+      <span id="ref-bar-text"></span>
+    </div>
+    <div id="video-display" style="display:none">
+      <video id="projected-video" controls playsinline></video>
+      <div id="video-lyrics-overlay"></div>
+    </div>
+    <div id="blank-display" style="display:none"></div>
+    <div id="logo-display" style="display:none">
+      <div id="logo-content">
+        <div id="logo-big">&#9835;</div>
+        <h1>Worshi<span>Play</span></h1>
+        <p>Sistema de Proyección para Alabanza y Adoración</p>
+      </div>
+    </div>
+  </div>
+  <div id="transition-overlay"></div>
+  <div id="pip-overlays"></div>
+  <div id="word-overlay" style="display:none" onclick="clearWordHighlight()">
+    <span id="word-overlay-text"></span>
+  </div>
+  <div id="note-display" style="display:none"></div>
+  <div id="announcement-banner" style="display:none"><span id="announcement-banner-text"></span></div>
+</div>
+<script src="projection.js"></script>
+</body>
+</html>

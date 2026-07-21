@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorshiPlay - Control</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div id="logo">
+      <div id="logo-icon">&#9835;</div>
+      <h1>Worshi<span>Play</span></h1>
+      <small>Sistema de Proyección</small>
+    </div>
+    <nav id="tabs">
+      <button class="tab-btn active" data-tab="songs">
+        <span class="tab-icon">&#9835;</span> Canciones
+      </button>
+      <button class="tab-btn" data-tab="bible">
+        <span class="tab-icon">&#10010;</span> Biblia
+      </button>
+      <button class="tab-btn" data-tab="video">
+        <span class="tab-icon">&#9654;</span> Video
+      </button>
+      <button class="tab-btn" data-tab="backgrounds">
+        <span class="tab-icon">&#9728;</span> Fondos
+      </button>
+      <button class="tab-btn" data-tab="notes">
+        <span class="tab-icon">&#128203;</span> Notas
+      </button>
+    </nav>
+    <div id="projection-status">
+      <div id="status-indicator"></div>
+      <span id="status-text">Proyectando: <span id="current-item">Nada</span></span>
+    </div>
+    <div id="controls-bottom">
+      <button id="btn-freeze" class="ctrl-btn" title="Congelar proyección">&#10074;&#10074;</button>
+      <button id="btn-blank" class="ctrl-btn" title="Pantalla en blanco">&#9632;</button>
+      <button id="btn-logo" class="ctrl-btn" title="Iniciar Proyección">&#9835;</button>
+      <button id="btn-clear-text" class="ctrl-btn" title="Borrar texto (solo fondo)">&#10006;</button>
+      <button id="btn-close-video" class="ctrl-btn" title="Quitar video y restaurar fondo">&#9635;</button>
+      <button id="btn-toggle-right-panel" class="ctrl-btn" title="Configuración">&#9881;</button>
+    </div>
+  </aside>
+  <main id="main-content">
+    <div id="songs-tab" class="tab-content active">
+      <div class="tab-header">
+        <h2>&#9835; Cancionero</h2>
+        <div class="search-box">
+          <input type="text" id="song-search" placeholder="Buscar canción...">
+        </div>
+      </div>
+      <div id="song-lists">
+        <div id="songs-left-panel">
+          <div class="song-toolbar">
+            <button id="btn-new-song" class="btn-secondary" style="font-size:0.8rem;">&#43; Nueva Canción</button>
+          </div>
+          <div id="song-list-container">
+            <h3>Canciones <span id="song-count"></span></h3>
+            <div id="song-list"></div>
+          </div>
+          <div id="setlist-section">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <h3 style="margin:0;font-size:0.9rem;">&#9776; SetList</h3>
+              <span id="setlist-count" style="color:var(--text-muted);font-size:0.75rem;">0 canciones</span>
+            </div>
+            <div id="setlist-items" style="margin-bottom:8px;"></div>
+            <div style="display:flex;gap:4px;">
+              <button id="btn-setlist-up" class="btn-secondary" style="font-size:0.7rem;padding:2px 6px;" title="Subir">&#8593;</button>
+              <button id="btn-setlist-down" class="btn-secondary" style="font-size:0.7rem;padding:2px 6px;" title="Bajar">&#8595;</button>
+              <button id="btn-setlist-remove" class="btn-secondary" style="font-size:0.7rem;padding:2px 6px;color:var(--danger);" title="Quitar">&#10005;</button>
+              <button id="btn-setlist-clear" class="btn-secondary" style="font-size:0.7rem;padding:2px 6px;color:var(--danger);" title="Limpiar todo">&#128465;</button>
+            </div>
+          </div>
+        </div>
+        <div id="song-preview-container">
+          <div id="song-preview-header">
+            <h3 id="song-preview-title">Selecciona una canción</h3>
+            <span id="song-preview-tone"></span>
+          </div>
+          <div id="song-preview-lyrics"></div>
+          <div id="song-actions">
+            
+            <select id="transition-select">
+              <option value="crossfade">Crossfade</option>
+              <option value="slide-left">Slide Izquierdo</option>
+              <option value="slide-right">Slide Derecho</option>
+              <option value="slide-up">Slide Arriba</option>
+              <option value="zoom-in">Zoom In</option>
+              <option value="morph">Morph</option>
+              <option value="curtain">Cortina</option>
+              <option value="glitch">Glitch</option>
+            </select>
+            <select id="lyrics-style-select">
+              <option value="glow">Glow</option>
+              <option value="simple">Simple</option>
+              <option value="karaoke">Karaoke</option>
+              <option value="reveal">Revelar</option>
+              <option value="bounce">Rebote</option>
+              <option value="typewriter">Máquina</option>
+              <option value="rainbow">Arcoíris</option>
+              <option value="neon">Neón</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="bible-tab" class="tab-content">
+      <div class="tab-header">
+        <h2>&#10010; Santa Biblia</h2>
+        <div class="bible-header-actions">
+          <div class="search-box">
+            <input type="text" id="bible-search" placeholder="Buscar versículo...">
+            <div id="bible-search-results"></div>
+          </div>
+          <button id="btn-download-bible" class="btn-secondary">&#128229; Descargar</button>
+        </div>
+      </div>
+      <div id="bible-parsing" class="loading-state">
+        <div class="spinner"></div>
+        <p>Procesando Biblia...</p>
+      </div>
+      <div id="bible-content" style="display:none">
+        <div id="bible-layout">
+          <div id="bible-sidebar">
+            <div id="bible-sidebar-search">
+              <input type="text" id="bible-book-search" placeholder="Buscar libro rápido...">
+            </div>
+            <div id="bible-book-list"></div>
+          </div>
+          <div id="bible-main-area">
+            <div id="bible-current-info">
+              <h3 id="bible-current-book-name">Selecciona un libro</h3>
+              <span id="bible-current-chapter-name"></span>
+            </div>
+            <div id="bible-main-inner">
+              <div id="bible-verse-grid"></div>
+              <div id="bible-word-panel" style="display:none">
+                <div class="bwp-header">
+                  <span>Panel de Palabras</span>
+                  <select id="bwp-effect">
+                    <option value="overlay">Resaltar (overlay)</option>
+                    <option value="highlight">Resaltar fondo</option>
+                    <option value="underline">Subrayado</option>
+                    <option value="bold">Negrita</option>
+                    <option value="color">Color dorado</option>
+                    <option value="circle">Círculo</option>
+                  </select>
+                </div>
+                <div id="bwp-verse-text"></div>
+                <div class="bwp-section-title">&#128269; Significado / Lengua original</div>
+                <div style="display:flex;gap:4px;">
+                  <input type="text" id="bwp-search" placeholder="Palabra en cualquier idioma..." style="flex:1;padding:6px 8px;border-radius:var(--radius);background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);font-size:0.8rem;">
+                  <button class="btn-secondary" id="btn-bwp-search" style="font-size:0.7rem;padding:3px 8px;">Buscar</button>
+                </div>
+                <div id="bwp-search-results" style="max-height:150px;overflow-y:auto;font-size:0.75rem;"></div>
+                <div class="bwp-section-title">&#128214; Exégesis / Teología / Hermenéutica</div>
+                <div style="display:flex;gap:4px;">
+                  <input type="text" id="bwp-exegesis-search" placeholder="Versículo / palabra..." style="flex:1;padding:6px 8px;border-radius:var(--radius);background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);font-size:0.8rem;">
+                  <button class="btn-secondary" id="btn-bwp-search-exegesis" style="font-size:0.7rem;padding:3px 8px;">Buscar</button>
+                </div>
+                <div id="bwp-exegesis-results" style="max-height:150px;overflow-y:auto;font-size:0.75rem;"></div>
+                <div id="bwp-clear">
+                  <button id="btn-bwp-clear" class="btn-secondary" style="font-size:0.75rem;padding:4px 12px;">Limpiar resalte</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="bible-nav-indicator" class="nav-indicator" style="display:none"></div>
+    <div id="song-nav-indicator" class="nav-indicator" style="display:none"></div>
+    <div id="download-modal" class="modal" style="display:none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>&#128229; Descargar Versión de la Biblia</h3>
+          <button class="modal-close" id="btn-modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="bible-version-list"></div>
+          <div id="bvl-footer">
+            <div class="bvl-custom">
+              <label>O descarga desde URL personalizada:</label>
+              <div style="display:flex;gap:6px;margin-top:6px;">
+                <input type="text" id="bvl-custom-url" placeholder="https://ejemplo.com/biblia.bi">
+                <input type="text" id="bvl-custom-name" placeholder="Nombre" style="width:100px;flex-shrink:0;">
+                <button id="bvl-custom-btn" class="bvi-btn" style="white-space:nowrap;">Descargar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-download-cancel" class="btn-secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    <div id="new-song-modal" class="modal" style="display:none">
+      <div class="modal-content" style="max-width:720px;max-height:90vh;">
+        <div class="modal-header">
+          <h3 id="ns-modal-title">&#43; Nueva Canción</h3>
+          <button class="modal-close" id="btn-new-song-close">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:18px 24px;">
+          <div id="ns-form-grid">
+            <div class="ns-field">
+              <label>Título</label>
+              <input type="text" id="ns-title" placeholder="Título de la canción">
+            </div>
+            <div class="ns-field">
+              <label>Artista</label>
+              <input type="text" id="ns-artist" placeholder="Artista / Autor">
+            </div>
+            <div class="ns-field">
+              <label>Tono</label>
+              <input type="text" id="ns-tone" placeholder="Ej: C, Dm, G">
+            </div>
+            <div class="ns-field-full">
+              <label>Buscar letra</label>
+              <div class="ns-search-row">
+                <input type="text" id="ns-search-query" placeholder="Nombre de la canción...">
+                <button id="ns-search-btn" class="bvi-btn">Buscar</button>
+              </div>
+              <div id="ns-search-results" style="display:none"></div>
+            </div>
+            <div class="ns-field-full ns-lyrics-field">
+              <label>Letra</label>
+              <textarea id="ns-lyrics" rows="16" placeholder="Escribe la letra aquí...&#10;Usa // para secciones (ej: //CORO)&#10;Cada línea es un verso&#10;Párrafos separados por línea en blanco = bloques"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-ns-cancel" class="btn-secondary">Cancelar</button>
+          <button id="btn-ns-save" class="btn-primary">&#128190; Guardar</button>
+        </div>
+      </div>
+    </div>
+    <div id="video-tab" class="tab-content">
+      <div class="tab-header">
+        <h2>&#9654; Video</h2>
+      </div>
+      <div id="video-controls">
+        <div class="video-source-group">
+          <h3>Fuente de Video</h3>
+          <div class="video-source-options">
+            <button id="btn-local-video" class="src-btn">&#128193; Archivo Local</button>
+            <button id="btn-youtube-video" class="src-btn">&#9654; YouTube</button>
+            <button id="btn-url-video" class="src-btn">&#127760; URL</button>
+          </div>
+          <div id="video-path-display" class="video-path"></div>
+          <div id="youtube-input" class="video-input-group" style="display:none;flex-direction:column;gap:8px;">
+            <div class="bvl-custom" style="width:100%;">
+              <label>Buscar en YouTube:</label>
+              <div style="display:flex;gap:6px;margin-top:4px;">
+                <input type="text" id="yt-search-query" placeholder="Nombre de la canción o video...">
+                <button id="yt-search-btn" class="bvi-btn" style="white-space:nowrap;">Buscar</button>
+              </div>
+              <div id="yt-search-results" style="margin-top:6px;max-height:250px;overflow-y:auto;display:none;border:1px solid var(--border);border-radius:var(--radius);"></div>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:8px;">
+              <label>O pega una URL:</label>
+              <div style="display:flex;gap:6px;margin-top:4px;">
+                <input type="text" id="youtube-url" placeholder="Ej: https://youtube.com/watch?v=...">
+                <button id="btn-load-youtube" class="bvi-btn">Cargar</button>
+              </div>
+            </div>
+          </div>
+          <div id="url-input" class="video-input-group" style="display:none">
+            <input type="text" id="video-url" placeholder="Ej: https://example.com/video.mp4">
+            <button id="btn-load-url" class="btn-secondary">Cargar</button>
+          </div>
+        </div>
+        <div id="video-preview-container">
+          <video id="local-video-preview" controls style="width:100%;max-height:300px;display:none"></video>
+          <div id="youtube-preview" style="display:none">
+            <div id="youtube-player"></div>
+          </div>
+        </div>
+        <div id="video-actions">
+          <button id="btn-project-video" class="btn-primary" disabled>&#9654; Proyectar Video</button>
+        </div>
+      </div>
+      <div id="pip-section" style="margin-top:24px;padding:16px;background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);">
+        <h3 style="font-size:0.9rem;margin-bottom:12px;">&#128249; Video Superpuesto (PIP)</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button id="btn-pip-add" class="btn-secondary">+ Agregar Video PIP</button>
+          <select id="pip-position" style="padding:8px;border-radius:var(--radius);background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);">
+            <option value="bottom-right">Esquina inferior derecha</option>
+            <option value="bottom-left">Esquina inferior izquierda</option>
+            <option value="top-right">Esquina superior derecha</option>
+            <option value="top-left">Esquina superior izquierda</option>
+          </select>
+          <select id="pip-size" style="padding:8px;border-radius:var(--radius);background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);">
+            <option value="small">Pequeño (15%)</option>
+            <option value="medium" selected>Mediano (25%)</option>
+            <option value="large">Grande (35%)</option>
+          </select>
+          <button id="btn-pip-apply" class="bvi-btn" style="white-space:nowrap;">Aplicar</button>
+        </div>
+        <div id="pip-list" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+    </div>
+    <div id="backgrounds-tab" class="tab-content">
+      <div class="tab-header">
+        <h2>&#9728; Fondos</h2>
+      </div>
+      <div id="bg-loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando fondos...</p>
+      </div>
+        <div id="bg-content" style="display:none">
+          <div id="bg-categories">
+            <button class="bg-cat-btn active" data-cat="all">Todos</button>
+            <button class="bg-cat-btn" data-cat="videos">Videos</button>
+            <button class="bg-cat-btn" data-cat="images">Imágenes</button>
+          </div>
+          <div id="bg-grid"></div>
+        </div>
+      </div>
+      <div id="notes-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>&#128203; Notas / Anuncios</h2>
+        </div>
+        <div class="na-section">
+          <h3 class="na-title">&#128240; Anuncios</h3>
+          <div id="na-announcements">
+            <div class="na-item">
+              <input type="text" class="na-input" id="na-ann-1" placeholder="Texto del anuncio..." maxlength="200">
+              <div class="na-options">
+                <label>Repetir: <input type="number" class="na-repeat" id="na-ann-repeat-1" value="1" min="1" max="10" style="width:50px;"></label>
+                <button class="btn-secondary na-send" data-ann="1">Enviar anuncio</button>
+              </div>
+            </div>
+            <div class="na-item">
+              <input type="text" class="na-input" id="na-ann-2" placeholder="Texto del anuncio..." maxlength="200">
+              <div class="na-options">
+                <label>Repetir: <input type="number" class="na-repeat" id="na-ann-repeat-2" value="1" min="1" max="10" style="width:50px;"></label>
+                <button class="btn-secondary na-send" data-ann="2">Enviar anuncio</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="na-section">
+          <h3 class="na-title">&#128221; Notas</h3>
+          <div id="na-notes">
+            <div class="na-item">
+              <textarea class="na-textarea" id="na-note-1" rows="2" placeholder="Nota 1..."></textarea>
+              <button class="btn-secondary na-send-note" data-note="1">Proyectar nota</button>
+            </div>
+            <div class="na-item">
+              <textarea class="na-textarea" id="na-note-2" rows="2" placeholder="Nota 2..."></textarea>
+              <button class="btn-secondary na-send-note" data-note="2">Proyectar nota</button>
+            </div>
+            <div class="na-item">
+              <textarea class="na-textarea" id="na-note-3" rows="2" placeholder="Nota 3..."></textarea>
+              <button class="btn-secondary na-send-note" data-note="3">Proyectar nota</button>
+            </div>
+            <div class="na-item">
+              <textarea class="na-textarea" id="na-note-4" rows="2" placeholder="Nota 4..."></textarea>
+              <button class="btn-secondary na-send-note" data-note="4">Proyectar nota</button>
+            </div>
+            <div class="na-item">
+              <textarea class="na-textarea" id="na-note-5" rows="2" placeholder="Nota 5..."></textarea>
+              <button class="btn-secondary na-send-note" data-note="5">Proyectar nota</button>
+            </div>
+            <div class="na-item">
+              <textarea class="na-textarea" id="na-note-6" rows="2" placeholder="Nota 6..."></textarea>
+              <button class="btn-secondary na-send-note" data-note="6">Proyectar nota</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  </main>
+  <div id="settings-modal" class="modal" style="display:none">
+    <div class="modal-content" id="settings-modal-content">
+      <div class="modal-header">
+        <h3>&#9881; Configuración</h3>
+        <button id="btn-close-settings-modal">&times;</button>
+      </div>
+      <div id="settings-modal-body">
+        <div id="rp-preview">
+          <div class="rp-section-title">Vista Previa</div>
+          <div id="rp-preview-box">
+            <div id="rp-preview-text">Proyección</div>
+          </div>
+        </div>
+
+        <div class="rp-section">
+          <div class="rp-section-title">Tipografía</div>
+          <div class="rp-row">
+            <label>Fuente</label>
+            <select id="rp-font-family">
+              <option value="Inter">Inter</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Palatino Linotype">Palatino</option>
+              <option value="Book Antiqua">Book Antiqua</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Garamond">Garamond</option>
+              <option value="Merriweather">Merriweather</option>
+              <option value="Lora">Lora</option>
+              <option value="Cormorant Garamond">Cormorant Garamond</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="Cinzel">Cinzel</option>
+              <option value="Arial">Arial</option>
+              <option value="Helvetica">Helvetica</option>
+              <option value="Tahoma">Tahoma</option>
+              <option value="Trebuchet MS">Trebuchet MS</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Calibri">Calibri</option>
+              <option value="Segoe UI">Segoe UI</option>
+              <option value="Candara">Candara</option>
+              <option value="Oswald">Oswald</option>
+              <option value="Roboto Slab">Roboto Slab</option>
+              <option value="Impact">Impact (títulos)</option>
+              <option value="Lucida Console">Lucida Console (mono)</option>
+            </select>
+          </div>
+          <div class="rp-row">
+            <label>Tamaño</label>
+            <div style="display:flex;align-items:center;gap:8px;flex:1;max-width:160px;">
+              <input type="range" id="rp-font-size" min="1" max="10" step="0.5" value="3" style="flex:1;">
+              <span id="rp-font-size-label" style="color:var(--accent);font-weight:700;font-size:0.8rem;min-width:35px;text-align:right;">3rem</span>
+            </div>
+          </div>
+          <div class="rp-row">
+            <label>Color</label>
+            <input type="color" id="rp-text-color" value="#f0e6d3">
+          </div>
+          <div class="rp-row">
+            <label>Espaciado</label>
+            <select id="rp-line-spacing">
+              <option value="1.4">Compacto</option>
+              <option value="1.8" selected>Normal</option>
+              <option value="2.2">Amplio</option>
+              <option value="2.8">Muy amplio</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rp-section">
+          <div class="rp-section-title">Posición</div>
+          <div class="rp-row">
+            <label>Alineación</label>
+            <div class="rp-btn-group" id="rp-text-align">
+              <button data-value="left" title="Izquierda">&#8592;</button>
+              <button data-value="center" class="active" title="Centro">&#8596;</button>
+              <button data-value="right" title="Derecha">&#8594;</button>
+            </div>
+          </div>
+          <div class="rp-row">
+            <label>Vertical</label>
+            <div class="rp-btn-group" id="rp-vertical-pos">
+              <button data-value="top" title="Arriba">&#8679;</button>
+              <button data-value="center" class="active" title="Centro">&#8693;</button>
+              <button data-value="bottom" title="Abajo">&#8681;</button>
+            </div>
+          </div>
+          <div class="rp-row">
+            <label>Mostrar ref.</label>
+            <label class="rp-toggle"><input type="checkbox" id="rp-show-ref" checked><span></span></label>
+          </div>
+          <div class="rp-row">
+            <label>Mostrar n&uacute;ms</label>
+            <label class="rp-toggle"><input type="checkbox" id="rp-show-nums" checked><span></span></label>
+          </div>
+          <div class="rp-row">
+            <label>Color n&uacute;m. vers&iacute;culo</label>
+            <input type="color" id="rp-verse-num-color" value="#b8860b">
+          </div>
+          <div class="rp-row">
+            <label>Fuente referencia</label>
+            <select id="rp-ref-font" style="font-size:0.7rem;">
+              <option value="">Misma que texto</option>
+              <option value="Inter">Inter</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Palatino Linotype">Palatino</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Arial">Arial</option>
+              <option value="Calibri">Calibri</option>
+            </select>
+          </div>
+          <div class="rp-row">
+            <label>Color referencia</label>
+            <input type="color" id="rp-ref-color" value="#b8860b">
+          </div>
+          <div class="rp-row">
+            <label>Tama&ntilde;o ref.</label>
+            <select id="rp-ref-size">
+              <option value="1.5rem">Peque&ntilde;o</option>
+              <option value="2rem" selected>Normal</option>
+              <option value="2.5rem">Grande</option>
+              <option value="3rem">Extra</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rp-section">
+          <div class="rp-section-title">Efectos</div>
+          <div class="rp-row">
+            <label>Sombra texto</label>
+            <label class="rp-toggle"><input type="checkbox" id="rp-text-shadow" checked><span></span></label>
+          </div>
+          <div class="rp-row">
+            <label>Brillo sombra</label>
+            <input type="range" id="rp-shadow-intensity" min="0" max="1" step="0.1" value="0.8">
+          </div>
+          <div class="rp-row">
+            <label>Estilo letra</label>
+            <select id="rp-lyrics-style">
+              <option value="glow">Glow</option>
+              <option value="simple">Simple</option>
+              <option value="karaoke">Karaoke</option>
+              <option value="reveal">Revelar</option>
+              <option value="bounce">Rebote</option>
+              <option value="typewriter">Máquina</option>
+              <option value="rainbow">Arcoíris</option>
+              <option value="neon">Neón</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rp-section">
+          <div class="rp-section-title">Transici&oacute;n</div>
+          <div class="rp-row">
+            <label>Tipo</label>
+            <select id="rp-transition">
+              <option value="crossfade">Crossfade</option>
+              <option value="slide-left">Slide Izquierdo</option>
+              <option value="slide-right">Slide Derecho</option>
+              <option value="slide-up">Slide Arriba</option>
+              <option value="zoom-in">Zoom In</option>
+              <option value="morph">Morph</option>
+              <option value="curtain">Cortina</option>
+              <option value="glitch">Glitch</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rp-section">
+          <div class="rp-section-title">Pantallas</div>
+          <div class="rp-row">
+            <label>Proyectar en</label>
+            <select id="rp-display-select"></select>
+          </div>
+          <div class="rp-row">
+            <label>Visible</label>
+            <label class="rp-toggle"><input type="checkbox" id="rp-projection-visible" checked><span></span></label>
+          </div>
+        </div>
+
+        <div class="rp-section">
+          <div class="rp-section-title">Fondo</div>
+          <div class="rp-row">
+            <label>Oscuridad</label>
+            <input type="range" id="rp-bg-dim" min="0" max="1" step="0.1" value="0.6">
+          </div>
+          <div class="rp-row">
+            <label>Fondo activo</label>
+            <span id="rp-current-bg" style="color:var(--text-muted);font-size:0.75rem;">Ninguno</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-apply-settings" class="btn-primary">&#10003; Aplicar a proyección</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

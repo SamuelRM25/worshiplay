@@ -1,0 +1,56 @@
+{
+  "name": "worshiplay",
+  "version": "1.0.0",
+  "description": "Sistema de Proyección para Alabanza y Adoración - Proyecta canciones, biblias y videos con transiciones profesionales",
+  "main": "start.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder build --win --mac --linux",
+    "build:win": "electron-builder build --win",
+    "build:mac": "electron-builder build --mac",
+    "build:linux": "electron-builder build --linux"
+  },
+  "build": {
+    "appId": "com.worshiplay.app",
+    "productName": "WorshiPlay",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "cancioneros",
+        "to": "cancioneros"
+      },
+      {
+        "from": "biblias",
+        "to": "biblias"
+      },
+      {
+        "from": "fondos",
+        "to": "fondos"
+      }
+    ],
+    "win": {
+      "target": "portable",
+      "icon": null
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": null
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": null
+    }
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.0.0"
+  }
+}
