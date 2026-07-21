@@ -1259,14 +1259,13 @@ async function initDisplays() {
       ).join('');
     }
 
-    // Restore saved display
-    if (projectionSettings.projectionDisplayIndex !== undefined) {
-      const idx = parseInt(projectionSettings.projectionDisplayIndex);
-      if (idx >= 0 && idx < displays.length) {
-        select.value = idx;
-        if (sidebarSelect) sidebarSelect.value = idx;
-      }
-    }
+    // Default to secondary display (index 1) if available, else primary
+    var defaultIdx = displays.length > 1 ? 1 : 0;
+    var savedIdx = projectionSettings.projectionDisplayIndex;
+    var targetIdx = savedIdx !== undefined ? parseInt(savedIdx) : defaultIdx;
+    if (targetIdx < 0 || targetIdx >= displays.length) targetIdx = defaultIdx;
+    select.value = targetIdx;
+    if (sidebarSelect) sidebarSelect.value = targetIdx;
 
     function changeDisplay(idx) {
       window.api.setProjectionDisplay(idx);

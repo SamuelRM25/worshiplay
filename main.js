@@ -27,8 +27,12 @@ function createControlWindow() {
   controlWindow.on('closed', () => { controlWindow = null; });
 }
 
+function getSortedDisplays() {
+  return [...screen.getAllDisplays()].sort((a, b) => a.bounds.x - b.bounds.x);
+}
+
 function createProjectionWindow() {
-  const displays = screen.getAllDisplays();
+  const displays = getSortedDisplays();
   const target = displays.length > 1 ? displays[1] : displays[0];
   const { x, y, width, height } = target.bounds;
 
@@ -62,7 +66,7 @@ function createProjectionWindow() {
 
 function moveProjectionToDisplay(displayIndex) {
   if (!projectionWindow) return;
-  const displays = screen.getAllDisplays();
+  const displays = getSortedDisplays();
   if (displayIndex < 0 || displayIndex >= displays.length) return;
   const target = displays[displayIndex];
   const { x, y, width, height } = target.bounds;
@@ -165,9 +169,7 @@ ipcMain.handle('get-local-video', async (event, relativePath) => {
 });
 
 ipcMain.handle('get-displays', async () => {
-  const displays = screen.getAllDisplays();
-  // Sort by x position so order is consistent
-  const sorted = [...displays].sort((a, b) => a.bounds.x - b.bounds.x);
+  const sorted = getSortedDisplays();
   const primary = screen.getPrimaryDisplay();
   const total = sorted.length;
 
