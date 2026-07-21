@@ -1245,15 +1245,40 @@ function updatePreview() {
 
 async function initDisplays() {
   const select = document.getElementById('rp-display-select');
+  const sidebarSelect = document.getElementById('sidebar-display-select');
   const toggle = document.getElementById('rp-projection-visible');
   try {
     const displays = await window.api.getDisplays();
-    select.innerHTML = displays.map(d =>
-      `<option value="${d.index}">${escapeHTML(d.name)} (${d.size})${d.isPrimary ? ' (Principal)' : ''}</option>`
+    var opts = displays.map(d =>
+      `<option value="${d.index}">${escapeHTML(d.name)} (${d.size})</option>`
     ).join('');
-    select.addEventListener('change', () => {
-      window.api.setProjectionDisplay(parseInt(select.value));
-    });
+    select.innerHTML = opts;
+    if (sidebarSelect) sidebarSelect.innerHTML = opts;
+
+    // Restore saved display
+    if (projectionSettings.projectionDisplayIndex !== undefined) {
+      const idx = parseInt(projectionSettings.projectionDisplayIndex);
+      if (idx >= 0 && idx < displays.length) {
+        select.value = idx;
+        if (sidebarSelect) sidebarSelect.value = idx;
+      }
+    }
+
+    function changeDisplay(idx) {
+      window.api.setProjectionDisplay(idx);
+      projectionSettings.projectionDisplayIndex = idx;
+      window.api.saveSettings(projectionSettings).catch(() => {});
+      select.value = idx;
+      if (sidebarSelect) sidebarSelect.value = idx;
+      showToast('Proyección: ' + displays[idx].name);
+    }
+
+    select.addEventListener('change', () => changeDisplay(parseInt(select.value)));
+    if (sidebarSelect) {
+      sidebarSelect.addEventListener('change', () => changeDisplay(parseInt(sidebarSelect.value)));
+    }
+
+    window.api.setProjectionDisplay(parseInt(select.value));
     const vis = await window.api.getProjectionVisible();
     toggle.checked = vis;
     toggle.addEventListener('change', () => {

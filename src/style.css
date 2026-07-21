@@ -95,6 +95,17 @@ body {
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 #current-item { color:var(--accent); }
 
+#display-selector {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 15px; border-top:1px solid var(--border);
+  font-size:0.7rem; color:var(--text-muted);
+}
+#display-selector select {
+  flex:1; padding:4px 6px; border-radius:4px;
+  background:var(--bg-card); border:1px solid var(--border);
+  color:var(--text-primary); font-size:0.7rem; outline:none; cursor:pointer;
+}
+#display-selector select:hover { border-color:var(--accent); }
 #controls-bottom { display:flex; gap:5px; padding:10px 15px; border-top:1px solid var(--border); }
 .ctrl-btn {
   flex:1; padding:8px; background:var(--bg-card); border:1px solid var(--border);

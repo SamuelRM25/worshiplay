@@ -166,13 +166,31 @@ ipcMain.handle('get-local-video', async (event, relativePath) => {
 
 ipcMain.handle('get-displays', async () => {
   const displays = screen.getAllDisplays();
-  return displays.map((d, i) => ({
-    index: i,
-    name: `Pantalla ${i + 1}`,
-    bounds: d.bounds,
-    isPrimary: i === 0,
-    size: `${d.bounds.width}x${d.bounds.height}`
-  }));
+  // Sort by x position so order is consistent
+  const sorted = [...displays].sort((a, b) => a.bounds.x - b.bounds.x);
+  const primary = screen.getPrimaryDisplay();
+  const total = sorted.length;
+
+  return sorted.map((d, i) => {
+    let label = `Pantalla ${i + 1}`;
+    if (d.id === primary.id) {
+      label += ' (Principal)';
+    } else {
+      const posX = d.bounds.x;
+      const midX = primary.bounds.x + primary.bounds.width / 2;
+      if (posX < midX) label += ' (Izquierda)';
+      else if (posX >= midX) label += ' (Derecha)';
+    }
+    return {
+      index: i,
+      displayId: d.id,
+      name: label,
+      bounds: d.bounds,
+      isPrimary: d.id === primary.id,
+      size: `${d.bounds.width}x${d.bounds.height}`,
+      scaleFactor: d.scaleFactor
+    };
+  });
 });
 
 ipcMain.handle('set-projection-display', async (event, displayIndex) => {
@@ -429,14 +447,54 @@ ipcMain.handle('search-word-meaning', async (event, word) => {
     } catch(e) {}
   }
 
-  // Try DuckDuckGo as last fallback
+  // Spanish Wiktionary
   if (!results.length) {
     try {
-      var ddgJson = await fetchUrl('https://api.duckduckgo.com/?q=' + encodeURIComponent(q + ' definition') + '&format=json&skip_disambig=1');
+      var esHtml = await fetchUrl('https://es.wiktionary.org/wiki/' + encodeURIComponent(q));
+      var esM = esHtml.match(/<ol>([\s\S]*?)<\/ol>/);
+      if (esM) {
+        var esDef = esM[1].replace(/<[^>]+>/g, '').trim().slice(0, 400);
+        if (esDef.length > 20) results.push('Español: ' + esDef);
+      }
+    } catch(e) {}
+  }
+
+  // Try DuckDuckGo with English query
+  if (!results.length) {
+    try {
+      var ddgJson = await fetchUrl('https://api.duckduckgo.com/?q=' + encodeURIComponent(q + ' meaning') + '&format=json&skip_disambig=1');
       var ddg = JSON.parse(ddgJson);
       if (ddg.AbstractText) results.push(ddg.AbstractText);
       if (ddg.Definition && ddg.Definition !== '') results.push(ddg.Definition);
       if (ddg.Answer && ddg.Answer !== '') results.push(ddg.Answer);
+    } catch(e) {}
+  }
+
+  // Try DuckDuckGo with Spanish biblical query
+  if (!results.length) {
+    try {
+      var ddgEsJson = await fetchUrl('https://api.duckduckgo.com/?q=' + encodeURIComponent(q + ' significado bíblico') + '&format=json&skip_disambig=1');
+      var ddgEs = JSON.parse(ddgEsJson);
+      if (ddgEs.AbstractText) results.push(ddgEs.AbstractText);
+      if (ddgEs.Definition && ddgEs.Definition !== '') results.push(ddgEs.Definition);
+      if (ddgEs.Answer && ddgEs.Answer !== '') results.push(ddgEs.Answer);
+      if (ddgEs.RelatedTopics && ddgEs.RelatedTopics.length) {
+        for (var ri = 0; ri < Math.min(2, ddgEs.RelatedTopics.length); ri++) {
+          var rt = ddgEs.RelatedTopics[ri];
+          if (rt.Text) results.push(rt.Text);
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Wikipedia Spanish as last fallback
+  if (!results.length) {
+    try {
+      var wikiJson = await fetchUrl('https://es.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(q));
+      var wiki = JSON.parse(wikiJson);
+      if (wiki.extract && wiki.extract.length > 20) {
+        results.push(wiki.extract.slice(0, 600));
+      }
     } catch(e) {}
   }
 
