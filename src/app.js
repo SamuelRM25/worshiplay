@@ -1253,7 +1253,11 @@ async function initDisplays() {
       `<option value="${d.index}">${escapeHTML(d.name)} (${d.size})</option>`
     ).join('');
     select.innerHTML = opts;
-    if (sidebarSelect) sidebarSelect.innerHTML = opts;
+    if (sidebarSelect) {
+      sidebarSelect.innerHTML = displays.map(d =>
+        `<option value="${d.index}">${escapeHTML(d.name.split('(')[0].trim())}</option>`
+      ).join('');
+    }
 
     // Restore saved display
     if (projectionSettings.projectionDisplayIndex !== undefined) {
