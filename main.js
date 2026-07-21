@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
@@ -218,6 +218,25 @@ ipcMain.handle('load-settings', async () => {
     }
   } catch {}
   return null;
+});
+
+ipcMain.handle('save-last-seen-version', async (event, version) => {
+  try {
+    const settingsPath = path.join(__dirname, 'settings.json');
+    let settings = {};
+    if (fs.existsSync(settingsPath)) {
+      settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+    }
+    settings.lastSeenVersion = version;
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+});
+
+ipcMain.handle('open-external-url', async (event, url) => {
+  shell.openExternal(url);
 });
 
 ipcMain.handle('reload-projection', async () => {
@@ -595,6 +614,53 @@ ipcMain.handle('get-available-bibles', async () => {
     };
   });
 });
+
+ipcMain.handle('get-app-version', async () => {
+  return app.getVersion();
+});
+
+ipcMain.handle('check-for-updates', async () => {
+  try {
+    const currentVersion = app.getVersion();
+    const json = await fetchUrl('https://api.github.com/repos/SamuelRM25/worshiplay/releases/latest');
+    const data = JSON.parse(json);
+
+    if (data.message && data.message.includes('Not Found')) {
+      return { hasUpdate: false, currentVersion, error: null };
+    }
+    if (data.message && data.message.includes('rate limit')) {
+      return { hasUpdate: false, currentVersion, error: 'Límite de API alcanzado. Intenta más tarde.' };
+    }
+
+    const latestTag = data.tag_name || '';
+    const latestVersion = latestTag.replace(/^v/, '');
+    const hasUpdate = compareVersions(latestVersion, currentVersion) > 0;
+
+    return {
+      hasUpdate,
+      currentVersion,
+      latestVersion,
+      releaseNotes: data.body || '',
+      downloadUrl: data.html_url || '',
+      htmlUrl: data.html_url || '',
+      publishedAt: data.published_at || ''
+    };
+  } catch (err) {
+    return { hasUpdate: false, currentVersion: app.getVersion(), error: err.message };
+  }
+});
+
+function compareVersions(a, b) {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    const na = pa[i] || 0;
+    const nb = pb[i] || 0;
+    if (na > nb) return 1;
+    if (na < nb) return -1;
+  }
+  return 0;
+}
 
 ipcMain.handle('download-bible', async (event, url, name) => {
   try {

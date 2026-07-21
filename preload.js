@@ -31,5 +31,9 @@ contextBridge.exposeInMainWorld('api', {
   loadSettings: () => ipcRenderer.invoke('load-settings'),
   isFirstProjection: () => ipcRenderer.invoke('is-first-projection'),
   searchWordMeaning: (word) => ipcRenderer.invoke('search-word-meaning', word),
-  searchExegesis: (query) => ipcRenderer.invoke('search-exegesis', query)
+  searchExegesis: (query) => ipcRenderer.invoke('search-exegesis', query),
+  openExternalUrl: (url) => ipcRenderer.invoke('open-external-url', url),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  checkUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  saveLastSeenVersion: (version) => ipcRenderer.invoke('save-last-seen-version', version)
 });

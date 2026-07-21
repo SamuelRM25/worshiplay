@@ -127,6 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadBackgrounds();
     await loadSettings();
     startHealthCheck();
+    initUpdates();
     showToast('WorshiPlay listo');
   } catch (e) {
     console.error('Error en inicio:', e);
@@ -1550,6 +1551,99 @@ async function searchYouTube() {
   btn.textContent = 'Buscar';
 }
 
+/* ── Update Checker ── */
+
+function initUpdates() {
+  document.getElementById('btn-check-updates').addEventListener('click', () => checkForUpdates(false));
+  document.getElementById('ub-download').addEventListener('click', () => {
+    var url = document.getElementById('ub-download').dataset.url;
+    if (url) window.api.openExternalUrl(url);
+  });
+  document.getElementById('ub-changelog').addEventListener('click', () => {
+    var version = document.getElementById('ub-changelog').dataset.version;
+    var notes = document.getElementById('ub-changelog').dataset.notes;
+    showChangelog(version, notes);
+  });
+  document.getElementById('ub-dismiss').addEventListener('click', () => {
+    var version = document.getElementById('ub-dismiss').dataset.version;
+    if (version) window.api.saveLastSeenVersion(version);
+    hideUpdateBanner();
+  });
+  document.getElementById('btn-changelog-close').addEventListener('click', closeChangelog);
+  document.getElementById('btn-changelog-close2').addEventListener('click', closeChangelog);
+  document.getElementById('changelog-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('changelog-modal')) closeChangelog();
+  });
+  document.getElementById('btn-changelog-download').addEventListener('click', () => {
+    var url = document.getElementById('btn-changelog-download').dataset.url;
+    if (url) window.api.openExternalUrl(url);
+    closeChangelog();
+  });
+
+  // Set current version display
+  window.api.getAppVersion().then(v => {
+    document.getElementById('rp-current-version').textContent = 'v' + v;
+  });
+
+  // Check for updates after 10s delay
+  setTimeout(() => checkForUpdates(true), 10000);
+}
+
+async function checkForUpdates(silent) {
+  var btn = document.getElementById('btn-check-updates');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Buscando...';
+  }
+  try {
+    var result = await window.api.checkUpdates();
+    if (result.error && !silent) {
+      showToast('Error al buscar: ' + result.error);
+    } else if (result.hasUpdate) {
+      var lastSeen = window._seenVersion;
+      if (lastSeen !== result.latestVersion) {
+        showUpdateBanner(result);
+      } else if (!silent) {
+        showToast('Nueva versión ' + result.latestVersion + ' disponible (descartada)');
+      }
+    } else if (!silent) {
+      showToast('Tienes la última versión (' + result.currentVersion + ')');
+    }
+  } catch (e) {
+    if (!silent) showToast('Error: ' + e.message);
+  }
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '🔃 Buscar actualizaciones';
+  }
+}
+
+function showUpdateBanner(data) {
+  var banner = document.getElementById('update-banner');
+  var text = document.getElementById('ub-text');
+  text.textContent = 'Nueva versión v' + data.latestVersion + ' disponible';
+  document.getElementById('ub-download').dataset.url = data.downloadUrl;
+  document.getElementById('ub-changelog').dataset.version = data.latestVersion;
+  document.getElementById('ub-changelog').dataset.notes = data.releaseNotes || 'Sin notas de versión.';
+  document.getElementById('ub-dismiss').dataset.version = data.latestVersion;
+  banner.classList.add('show');
+}
+
+function hideUpdateBanner() {
+  document.getElementById('update-banner').classList.remove('show');
+}
+
+function showChangelog(version, notes) {
+  document.getElementById('changelog-version').textContent = 'v' + version;
+  document.getElementById('changelog-body').textContent = notes || 'Sin notas de versión.';
+  document.getElementById('btn-changelog-download').dataset.url = document.getElementById('ub-download').dataset.url;
+  document.getElementById('changelog-modal').style.display = 'flex';
+}
+
+function closeChangelog() {
+  document.getElementById('changelog-modal').style.display = 'none';
+}
+
 /* ── Health Check ── */
 
 let healthCheckFails = 0;
@@ -1584,6 +1678,9 @@ async function loadSettings() {
       Object.assign(projectionSettings, saved);
       if (saved.currentBackground) {
         currentBackground = saved.currentBackground;
+      }
+      if (saved.lastSeenVersion) {
+        window._seenVersion = saved.lastSeenVersion;
       }
       applySavedSettings();
     }
